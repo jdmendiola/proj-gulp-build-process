@@ -26,7 +26,6 @@ gulp.task('minify', ['concatenate'], function(){
 gulp.task('clean', function(){
     del([
         'js/app*',
-        'js/app.*.js',
         'dist'
     ]);
 });
