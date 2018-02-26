@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var sass = require('gulp-sass');
 var del = require('del');
 
 gulp.task('testing', function(){
@@ -23,9 +24,18 @@ gulp.task('minify', ['concatenate'], function(){
     .pipe(gulp.dest('dist/scripts'))
 });
 
+gulp.task('scripts', ['minify']);
+
+gulp.task('styles', function(){
+    gulp.src('sass/global.scss')
+    .pipe(sass())
+    .pipe(gulp.dest('css'))
+});
+
 gulp.task('clean', function(){
     del([
         'js/app*',
-        'dist'
+        'dist',
+        'css'
     ]);
 });
