@@ -6,6 +6,7 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var sass = require('gulp-sass');
 var minifyCSS = require('gulp-clean-css');
+var maps = require('gulp-sourcemaps');
 var del = require('del');
 
 gulp.task('concatJS', function(){
@@ -35,6 +36,8 @@ gulp.task('miniCSS', ['compileCSS'], function(){
     .pipe(rename('all.min.css'))
     .pipe(gulp.dest('dist/css'))
 });
+
+gulp.task('styles', ['miniCSS']);
 
 gulp.task('clean', function(){
     del([
