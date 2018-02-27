@@ -8,10 +8,13 @@ var sass = require('gulp-sass');
 var minifyCSS = require('gulp-clean-css');
 var maps = require('gulp-sourcemaps');
 var del = require('del');
+var shrinkIMG = require('gulp-imagemin');
 
 gulp.task('concatJS', function(){
-   return gulp.src(['js/**/*.js']) 
+   return gulp.src(['js/**/*.js'])
+   .pipe(maps.init())
    .pipe(concat('app.js'))
+   .pipe(maps.write('./'))
    .pipe(gulp.dest('js'))
 });
 
@@ -26,7 +29,9 @@ gulp.task('scripts', ['miniJS']);
 
 gulp.task('compileCSS', function(){
     return gulp.src('sass/global.scss')
+    .pipe(maps.init())
     .pipe(sass())
+    .pipe(maps.write('./'))
     .pipe(gulp.dest('css'))
 });
 
@@ -39,10 +44,24 @@ gulp.task('miniCSS', ['compileCSS'], function(){
 
 gulp.task('styles', ['miniCSS']);
 
+gulp.task('images', function(){
+    return gulp.src(['images/*'])
+    .pipe(shrinkIMG())
+    .pipe(gulp.dest('dist/content'))
+});
+
+gulp.task('build', ['clean','scripts','styles','images'], function(){
+    return gulp.src([
+        'index.html',
+        'icons/**/*'
+    ], {base: './'})
+    .pipe(gulp.dest('dist'))
+});
+
 gulp.task('clean', function(){
     del([
         'js/app*',
-        'dist',
+        'dist/**/*',
         'css'
     ]);
 });
