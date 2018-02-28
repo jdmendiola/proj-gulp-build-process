@@ -9,6 +9,7 @@ var minifyCSS = require('gulp-clean-css');
 var maps = require('gulp-sourcemaps');
 var del = require('del');
 var shrinkIMG = require('gulp-imagemin');
+var webserver = require('gulp-server-livereload');
 
 gulp.task('concatJS', function(){
    return gulp.src(['js/**/*.js'])
@@ -50,7 +51,19 @@ gulp.task('images', function(){
     .pipe(gulp.dest('dist/content'))
 });
 
-gulp.task('build', ['clean','scripts','styles','images'], function(){
+gulp.task('watchSASS', function(){
+    gulp.watch('sass/**/*.scss', ['styles'])
+});
+
+gulp.task('serve', function(){
+    gulp.src('./')
+    .pipe(webserver({
+        livereload: true,
+        open: true
+    }))
+});
+
+gulp.task('build', ['clean','scripts','styles','images','serve'], function(){
     return gulp.src([
         'index.html',
         'icons/**/*'
@@ -65,3 +78,5 @@ gulp.task('clean', function(){
         'css'
     ]);
 });
+
+gulp.task('default', ['build', 'watchSASS']);
