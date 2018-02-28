@@ -52,18 +52,18 @@ gulp.task('images', function(){
 });
 
 gulp.task('watchSASS', function(){
-    gulp.watch('sass/**/*.scss', ['styles'])
+    return gulp.watch('sass/**/*.scss', ['styles'])
 });
 
-gulp.task('serve', function(){
-    gulp.src('./')
+gulp.task('serve', ['build'], function(){
+    return gulp.src('./')
     .pipe(webserver({
         livereload: true,
         open: true
     }))
 });
 
-gulp.task('build', ['clean','scripts','styles','images','serve'], function(){
+gulp.task('build', ['clean','scripts','styles','images'], function(){
     return gulp.src([
         'index.html',
         'icons/**/*'
@@ -79,4 +79,4 @@ gulp.task('clean', function(){
     ]);
 });
 
-gulp.task('default', ['build', 'watchSASS']);
+gulp.task('default', ['build', 'serve', 'watchSASS']);
