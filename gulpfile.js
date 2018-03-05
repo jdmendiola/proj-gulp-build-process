@@ -9,7 +9,8 @@ var minifyCSS = require('gulp-clean-css');
 var maps = require('gulp-sourcemaps');
 var del = require('del');
 var shrinkIMG = require('gulp-imagemin');
-var webserver = require('gulp-server-livereload');
+var webserver = require('gulp-webserver');
+var runSequence = require('run-sequence');
 
 gulp.task('concatJS', function(){
    return gulp.src(['js/**/*.js'])
@@ -19,14 +20,19 @@ gulp.task('concatJS', function(){
    .pipe(gulp.dest('js'))
 });
 
-gulp.task('miniJS', ['concatJS'], function(){
+gulp.task('miniJS', function(){
     return gulp.src('js/app.js')
     .pipe(uglify())
     .pipe(rename('all.min.js'))
     .pipe(gulp.dest('dist/scripts'))
 });
 
-gulp.task('scripts', ['miniJS']);
+gulp.task('scripts', function(){
+    runSequence(
+        'concatJS',
+        'miniJS'
+    );
+});
 
 gulp.task('compileCSS', function(){
     return gulp.src('sass/global.scss')
@@ -36,14 +42,19 @@ gulp.task('compileCSS', function(){
     .pipe(gulp.dest('css'))
 });
 
-gulp.task('miniCSS', ['compileCSS'], function(){
+gulp.task('miniCSS', function(){
     return gulp.src('css/global.css')
     .pipe(minifyCSS())
     .pipe(rename('all.min.css'))
     .pipe(gulp.dest('dist/css'))
 });
 
-gulp.task('styles', ['miniCSS']);
+gulp.task('styles', function(){
+    runSequence(
+        'compileCSS',
+        'miniCSS'
+    );
+});
 
 gulp.task('images', function(){
     return gulp.src(['images/*'])
@@ -55,7 +66,7 @@ gulp.task('watchSASS', function(){
     return gulp.watch('sass/**/*.scss', ['styles'])
 });
 
-gulp.task('serve', ['build'], function(){
+gulp.task('serve', function(){
     return gulp.src('./')
     .pipe(webserver({
         livereload: true,
@@ -63,20 +74,31 @@ gulp.task('serve', ['build'], function(){
     }))
 });
 
-gulp.task('build', ['clean','scripts','styles','images'], function(){
-    return gulp.src([
-        'index.html',
-        'icons/**/*'
-    ], {base: './'})
-    .pipe(gulp.dest('dist'))
+gulp.task('build', ['clean'], function(){
+
+    runSequence(
+        'scripts',
+        'styles',
+        'images',
+        function(){
+            return gulp.src([
+                'index.html',
+                'icons/**/*'
+            ], {base: './'})
+            .pipe(gulp.dest('dist'))
+        }
+    );
+
 });
 
 gulp.task('clean', function(){
-    del([
+    return del([
         'js/app*',
-        'dist/**/*',
+        'dist',
         'css'
     ]);
 });
 
-gulp.task('default', ['build', 'serve', 'watchSASS']);
+gulp.task('default', function(){
+    runSequence('build', 'serve', 'watchSASS');
+});
